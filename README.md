@@ -94,8 +94,5 @@ tail -n 50 app.log
 pkill -f /Users/<TU_USUARIO>/Desktop/DNS/main.py
 ```
 
-### Notas
-
-- TTL solo se devuelve al cliente; no caduca ni borra automáticamente los archivos. Si necesitas lógica de expiración, impleméntala en el consumidor.
 
 
