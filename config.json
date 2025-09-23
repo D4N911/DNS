@@ -1,0 +1,9 @@
+{
+  "folder": "/Users/d4n911/Desktop/DNS_test",
+  "files": {
+    "archivo.txt": {
+      "publish": true,
+      "ttl": 300
+    }
+  }
+}

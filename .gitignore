@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+
+# Virtual envs
+.venv/
+venv/
+
+# OS
+.DS_Store
+
+# Logs & runtime
+app.log
+
+# Config (si no quieres subirlo, comenta la línea siguiente)
+# config.json
+
