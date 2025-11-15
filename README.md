@@ -30,11 +30,11 @@ Cuando veas en consola: "Servidor iniciado. UDP en puerto 50000." el servidor es
 
 3) En otra terminal, consulta por UDP si un archivo está disponible:
 ```bash
-python3 -c 'import socket, json; s=socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.settimeout(3); s.sendto(json.dumps({"filename":"archivo.txt"}).encode(), ("127.0.0.1",50000)); print(s.recvfrom(4096)[0].decode())'
+python3 -c 'import socket, json; s=socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.settimeout(3); s.sendto(json.dumps({"filename":"archivo","extension":"txt"}).encode(), ("127.0.0.1",50000)); print(s.recvfrom(4096)[0].decode())'
 ```
 Verás una respuesta JSON:
-- ACK: {"status":"ACK","filename":"archivo.txt","ttl":300}
-- NACK: {"status":"NACK","filename":"archivo.txt"}
+- ACK: {"status":"ACK","filename":"archivo","extension":"txt","ttl":300}
+- NACK: {"status":"NACK","filename":"archivo","extension":"txt"}
 
 ### Uso detallado (CLI)
 
@@ -53,7 +53,12 @@ Formato:
 {
   "folder": "/ruta/absoluta/a/la/carpeta",
   "files": {
-    "nombre.ext": { "publish": true, "ttl": 300 }
+    "nombre.ext": {
+      "filename": "nombre",
+      "extension": "ext",
+      "publish": true,
+      "ttl": 300
+    }
   }
 }
 ```
@@ -64,10 +69,11 @@ Formato:
 ### Servidor UDP
 
 - Escucha en `0.0.0.0:50000` (UDP).
-- Solicitud (JSON): `{"filename":"nombre.ext"}`
+- Solicitud (JSON): `{"filename":"nombre","extension":"ext"}` (nombre y extensión separados)
+  - También acepta formato legacy: `{"filename":"nombre.ext"}` (se extrae automáticamente)
 - Respuestas:
-  - ACK: `{"status":"ACK","filename":"nombre.ext","ttl":<segundos>}` cuando el archivo existe y `publish=true`.
-  - NACK: `{"status":"NACK","filename":"nombre.ext"}` cuando no existe en la lista o no es publicable.
+  - ACK: `{"status":"ACK","filename":"nombre","extension":"ext","ttl":<segundos>}` cuando el archivo existe y `publish=true`.
+  - NACK: `{"status":"NACK","filename":"nombre","extension":"ext"}` cuando no existe en la lista o no es publicable.
 
 ### Logs
 

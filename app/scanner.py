@@ -53,11 +53,12 @@ class FolderScanner:
         known = self._config.list_files()
 
         # Add new files or confirm existing
-        for filename in sorted(current.keys()):
-            if filename not in known:
-                publish, ttl = self._prompt_for_file(filename)
-                self._config.upsert_file(filename, publish, ttl)
-                log.info(f"Nuevo archivo: {filename} | publish={publish} ttl={ttl}")
+        for fullname in sorted(current.keys()):
+            if fullname not in known:
+                publish, ttl = self._prompt_for_file(fullname)
+                base, ext = current[fullname]
+                self._config.upsert_file(fullname, base, ext, publish, ttl)
+                log.info(f"Nuevo archivo: {fullname} (nombre={base}, ext={ext}) | publish={publish} ttl={ttl}")
 
         # Remove missing files
         for filename in list(known.keys()):
@@ -73,11 +74,12 @@ class FolderScanner:
                 known = self._config.list_files()
 
                 # Add new files and prompt
-                for filename in sorted(current.keys()):
-                    if filename not in known:
-                        publish, ttl = self._prompt_for_file(filename)
-                        self._config.upsert_file(filename, publish, ttl)
-                        log.info(f"[SCAN] Nuevo archivo: {filename} | publish={publish} ttl={ttl}")
+                for fullname in sorted(current.keys()):
+                    if fullname not in known:
+                        publish, ttl = self._prompt_for_file(fullname)
+                        base, ext = current[fullname]
+                        self._config.upsert_file(fullname, base, ext, publish, ttl)
+                        log.info(f"[SCAN] Nuevo archivo: {fullname} (nombre={base}, ext={ext}) | publish={publish} ttl={ttl}")
 
                 # Remove missing files
                 for filename in list(known.keys()):

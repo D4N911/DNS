@@ -11,6 +11,8 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class FileConfig:
+    filename: str  # nombre del archivo sin extensión
+    extension: str  # extensión del archivo
     publish: bool
     ttl: int
 
@@ -35,7 +37,16 @@ class ConfigManager:
                 self._files = {}
                 for name, meta in files.items():
                     try:
+                        # Compatibilidad: si no tiene filename/extension, extraer del nombre
+                        filename = meta.get("filename")
+                        extension = meta.get("extension")
+                        if not filename or extension is None:
+                            base, ext = os.path.splitext(name)
+                            filename = filename or base
+                            extension = extension if extension is not None else ext.lstrip(".")
                         self._files[name] = FileConfig(
+                            filename=filename,
+                            extension=extension,
                             publish=bool(meta.get("publish", False)),
                             ttl=int(meta.get("ttl", 300)),
                         )
@@ -69,10 +80,23 @@ class ConfigManager:
     def get_file(self, filename: str) -> Optional[FileConfig]:
         with self._lock:
             return self._files.get(filename)
-
-    def upsert_file(self, filename: str, publish: bool, ttl: int) -> None:
+    
+    def get_file_by_name_and_ext(self, filename: str, extension: str) -> Optional[FileConfig]:
+        """Busca un archivo por nombre y extensión separados."""
         with self._lock:
-            self._files[filename] = FileConfig(publish=publish, ttl=ttl)
+            for fullname, config in self._files.items():
+                if config.filename == filename and config.extension == extension:
+                    return config
+            return None
+
+    def upsert_file(self, fullname: str, filename: str, extension: str, publish: bool, ttl: int) -> None:
+        with self._lock:
+            self._files[fullname] = FileConfig(
+                filename=filename,
+                extension=extension,
+                publish=publish,
+                ttl=ttl
+            )
 
     def remove_file(self, filename: str) -> None:
         with self._lock:

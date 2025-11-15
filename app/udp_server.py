@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import socket
 from typing import Tuple
 
@@ -18,14 +19,34 @@ class UdpServer:
     def _handle_request(self, data: bytes, addr: Tuple[str, int]) -> bytes:
         try:
             payload = json.loads(data.decode("utf-8"))
+            # Acepta tanto formato nuevo (nombre y extensión separados) como formato antiguo (filename completo)
             filename = payload.get("filename")
+            extension = payload.get("extension", "")
+            
+            # Si no viene extensión, intentar extraer del filename o buscar por filename completo
+            if filename and not extension:
+                base, ext = os.path.splitext(filename)
+                if ext:
+                    filename = base
+                    extension = ext.lstrip(".")
+                else:
+                    # Formato antiguo: buscar por nombre completo
+                    meta = self._config.get_file(payload.get("filename"))
+                    if meta and meta.publish:
+                        resp = {"status": "ACK", "filename": meta.filename, "extension": meta.extension, "ttl": meta.ttl}
+                    else:
+                        resp = {"status": "NACK", "filename": payload.get("filename"), "extension": ""}
+                    return json.dumps(resp).encode("utf-8")
+            
             if not filename or not isinstance(filename, str):
                 return json.dumps({"status": "NACK", "error": "invalid filename"}).encode("utf-8")
-            meta = self._config.get_file(filename)
+            
+            # Buscar por nombre y extensión separados
+            meta = self._config.get_file_by_name_and_ext(filename, extension or "")
             if meta and meta.publish:
-                resp = {"status": "ACK", "filename": filename, "ttl": meta.ttl}
+                resp = {"status": "ACK", "filename": meta.filename, "extension": meta.extension, "ttl": meta.ttl}
             else:
-                resp = {"status": "NACK", "filename": filename}
+                resp = {"status": "NACK", "filename": filename, "extension": extension or ""}
             return json.dumps(resp).encode("utf-8")
         except Exception as e:
             log.warning(f"Solicitud inválida desde {addr}: {e}")

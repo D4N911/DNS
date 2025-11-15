@@ -1,9 +1,29 @@
 {
   "folder": "/Users/d4n911/Desktop/DNS_test",
   "files": {
-    "archivo.txt": {
+    "archivo1.txt": {
+      "filename": "archivo1",
+      "extension": "txt",
       "publish": true,
       "ttl": 300
+    },
+    "documento.pdf": {
+      "filename": "documento",
+      "extension": "pdf",
+      "publish": true,
+      "ttl": 300
+    },
+    "imagen.jpg": {
+      "filename": "imagen",
+      "extension": "jpg",
+      "publish": true,
+      "ttl": 30
+    },
+    "script.py": {
+      "filename": "script",
+      "extension": "py",
+      "publish": true,
+      "ttl": 400
     }
   }
 }
